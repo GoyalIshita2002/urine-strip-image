@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urine Strip Color Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Urine Strip Image</h1>
+        <input type="file" id="imageInput">
+        <button onclick="uploadImage()">Upload</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function uploadImage() {
+            const input = document.getElementById('imageInput');
+            if (input.files.length === 0) {
+                alert('Please select an image file.');
+                return;
+            }
+
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayColors(data.colors);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while uploading the image.');
+            });
+        }
+
+        function displayColors(colors) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<h2>Extracted Colors</h2>';
+            colors.forEach((color, index) => {
+                const colorDiv = document.createElement('div');
+                colorDiv.style.backgroundColor = `rgb(${color.R}, ${color.G}, ${color.B})`;
+                colorDiv.textContent = `Color ${index + 1}: ${color.name} (R: ${color.R}, G: ${color.G}, B: ${color.B})`;
+                resultDiv.appendChild(colorDiv);
+            });
+        }
+    </script>
+</body>
+</html>
